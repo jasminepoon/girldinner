@@ -1,8 +1,7 @@
 import { Configuration, OpenAIApi } from "openai";
 
 const configuration = new Configuration({
-  apiKey: process.env.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
-  ,
+  apiKey: process.env.OPENAI_API_KEY,
 });
 const openai = new OpenAIApi(configuration);
 
@@ -16,11 +15,11 @@ export default async function (req, res) {
     return;
   }
 
-  const animal = req.body.animal || '';
-  if (animal.trim().length === 0) {
+  const ingredient = req.body.ingredient || '';
+  if (ingredient.trim().length === 0) {
     res.status(400).json({
       error: {
-        message: "Please enter a valid animal",
+        message: "Please enter only one ingredient because we all know you don't have anything else :-)",
       }
     });
     return;
@@ -29,8 +28,8 @@ export default async function (req, res) {
   try {
     const completion = await openai.createCompletion({
       model: "text-davinci-003",
-      prompt: generatePrompt(animal),
-      temperature: 0.6,
+      prompt: generatePrompt(ingredient),
+      temperature: 0.5,
     });
     res.status(200).json({ result: completion.data.choices[0].text });
   } catch(error) {
@@ -49,15 +48,13 @@ export default async function (req, res) {
   }
 }
 
-function generatePrompt(animal) {
-  const capitalizedAnimal =
-    animal[0].toUpperCase() + animal.slice(1).toLowerCase();
-  return `Suggest three names for an animal that is a superhero.
+function generatePrompt(ingredient) {
+  const capitalizedIngredient =
+    ingredient[0].toUpperCase() + ingredient.slice(1).toLowerCase();
+  return `You are a funny generator of food items that take no effort to make. The user will provide you with an input of one ingredient. Suggest one food dish for lazy people that are not very nutritious but still edible. Do not include recipes. Make your response as short as a tweet. Be funny.
 
-Animal: Cat
-Names: Captain Sharpclaw, Agent Fluffball, The Incredible Feline
-Animal: Dog
-Names: Ruff the Protector, Wonder Canine, Sir Barks-a-Lot
-Animal: ${capitalizedAnimal}
-Names:`;
+Ingredient: Cheese
+Dish: Cheesy Cheese: Take a slice of cheese, fold it in half.
+Ingredient: ${capitalizedIngredient}
+Dish: `;
 }
